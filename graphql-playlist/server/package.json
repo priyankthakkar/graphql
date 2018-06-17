@@ -1,0 +1,31 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "This will act as a server for current graphql project.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/priyankthakkar/graphql"
+  },
+  "keywords": [
+    "graphql",
+    "javascript",
+    "express",
+    "nodejs"
+  ],
+  "author": "Priyank Thakkar",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/priyankthakkar/graphql/issues"
+  },
+  "homepage": "https://github.com/priyankthakkar/graphql#readme",
+  "dependencies": {
+    "express": "^4.16.3",
+    "express-graphql": "^0.6.12",
+    "graphql": "^0.13.2",
+    "npm": "^6.1.0"
+  }
+}
