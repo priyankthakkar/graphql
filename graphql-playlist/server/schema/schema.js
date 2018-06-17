@@ -2,20 +2,22 @@ const graphql = require('graphql');
 
 const { GraphQLObjectType, GraphQLString, GraphQLSchema } = graphql;
 
+// dummu data, down the line this will be replaced by mongo db
+
 var data = [
 	{
 		"id": "1",
-		"name": "",
+		"name": "Name of the Wind",
 		"genre": "fiction"
 	},
 	{
 		"id": "2",
-		"name": "",
+		"name": "The Final Empire",
 		"genre": "fiction"
 	},
 	{
 		"id": "3",
-		"name": "",
+		"name": "The Long Earth",
 		"genre": "sci-fi"
 	}
 ];
@@ -49,6 +51,10 @@ const RootQuery = new GraphQLObjectType({
 			resolve(parent, args) {
 				// place code here to get data from db/datasource
 
+				// This statement here, iterates through dummy data placed above
+				// and finds a book with given id
+				return data
+					.find(book => book.id === args.id);
 			}
 		}
 	}
