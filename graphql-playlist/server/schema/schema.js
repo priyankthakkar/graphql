@@ -1,6 +1,11 @@
 const graphql = require('graphql');
 
-const { GraphQLObjectType, GraphQLString, GraphQLSchema } = graphql;
+const { 
+	GraphQLObjectType, 
+	GraphQLString, 
+	GraphQLSchema,
+	GraphQLID 
+} = graphql;
 
 // dummu data, down the line this will be replaced by mongo db
 
@@ -25,7 +30,7 @@ var data = [
 const BookType = new GraphQLObjectType({
 	name: 'Book',
 	fields: () => ({
-		id: {type: GraphQLString},
+		id: {type: GraphQLID},
 		name: {type: GraphQLString},
 		genre: {type: GraphQLString}
 	})
@@ -37,8 +42,8 @@ const BookType = new GraphQLObjectType({
 // also we mention, that book should be queried based on id 
 // which is going to be of type String(GraphQLString to be precise)
 
-// same RootQuery will look like
-// book(id: '1') {
+// same RootQuery will look like (while using string, use double quotes always)
+// book(id: "1") {
 // 	name
 // 	genre
 // }
@@ -47,7 +52,10 @@ const RootQuery = new GraphQLObjectType({
 	fields: {
 		book: {
 			type: BookType,
-			args: { id: { type: GraphQLString } },
+			// an import thing to notice here is, the id type for args was GraphQLString earlier, which supports only String as an arg
+			// but we are going to replace it with GraphQLID, which is more adaptive while taking arguments
+			// now you can pass id as string or integer but GraphQLID will adapat and support both the type of args
+			args: { id: { type: GraphQLID } },
 			resolve(parent, args) {
 				// place code here to get data from db/datasource
 
