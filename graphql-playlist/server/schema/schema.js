@@ -5,7 +5,8 @@ const {
 	GraphQLString, 
 	GraphQLSchema,
 	GraphQLID,
-	GraphQLInt 
+	GraphQLInt,
+	GraphQLList
 } = graphql;
 
 // dummy data, down the line this will be replaced by mongo db
@@ -27,6 +28,24 @@ const books = [
 		"id": "3",
 		"name": "The Long Earth",
 		"genre": "sci-fi",
+		"authorId": "3"
+	},
+	{
+		"id": "4",
+		"name": "The Hero of Ages",
+		"genre": "Fantasy",
+		"authorId": "2"
+	},
+	{
+		"id": "5",
+		"name": "The Colour of Magic",
+		"genre": "Fantasy",
+		"authorId": "3"
+	},
+	{
+		"id": "6",
+		"name": "The Light Fantastic",
+		"genre": "Fantasy",
 		"authorId": "3"
 	}
 ];
@@ -79,12 +98,36 @@ const BookType = new GraphQLObjectType({
 	})
 });
 
+// Now relationship between BookType and AuthorType is bi-directional
+// For books, we are using GraphQLList instead of plain BookType because author can have more than one book
+// Also to notice, we are now using filter method under resolve() method because find() returns only one result
+// while filter() can yield multiple elements
+// If you use the below query for author with id: 3 from dummy data, it should yield an author with 3 books
+//	{
+//		author(id: 3) {
+//			id
+//			name
+//			age
+//			books {
+//				name
+//				genre
+//			}
+//		}
+//	}
+
 const AuthorType = new GraphQLObjectType({
 	name: 'Author',
 	fields: () => ({
 		id: { type: GraphQLID },
 		name: { type: GraphQLString },
-		age: { type: GraphQLInt }
+		age: { type: GraphQLInt },
+		books: {
+			type: GraphQLList(BookType),
+			resolve(parent, args) {
+				return books
+						.filter(book => book.authorId === parent.id);
+			}
+		}
 	})
 });
 
