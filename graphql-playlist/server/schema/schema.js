@@ -4,12 +4,13 @@ const {
 	GraphQLObjectType, 
 	GraphQLString, 
 	GraphQLSchema,
-	GraphQLID 
+	GraphQLID,
+	GraphQLInt 
 } = graphql;
 
-// dummu data, down the line this will be replaced by mongo db
+// dummy data, down the line this will be replaced by mongo db
 
-var data = [
+const books = [
 	{
 		"id": "1",
 		"name": "Name of the Wind",
@@ -27,12 +28,39 @@ var data = [
 	}
 ];
 
+const authors = [
+	{
+		"name": "Patrick Rothfuss",
+		"age": 44,
+		"id": "1"
+	},
+	{
+		"name": "Brandon Sanderson",
+		"age": 42,
+		"id": "2"
+	},
+	{
+		"name": "Terry Pratchett",
+		"age": 66,
+		"id": "3"
+	},
+]
+
 const BookType = new GraphQLObjectType({
 	name: 'Book',
 	fields: () => ({
 		id: {type: GraphQLID},
 		name: {type: GraphQLString},
 		genre: {type: GraphQLString}
+	})
+});
+
+const AuthorType = new GraphQLObjectType({
+	name: 'Author',
+	fields: () => ({
+		id: { type: GraphQLID },
+		name: { type: GraphQLString },
+		age: { type: GraphQLInt }
 	})
 });
 
@@ -61,8 +89,16 @@ const RootQuery = new GraphQLObjectType({
 
 				// This statement here, iterates through dummy data placed above
 				// and finds a book with given id
-				return data
-					.find(book => book.id === args.id);
+				return books
+						.find(book => book.id === args.id);
+			}
+		},
+		author: {
+			type: AuthorType,
+			args: { id: { type: GraphQLID } },
+			resolve(parent, args) {
+				return authors
+						.find(author => author.id === args.id);
 			}
 		}
 	}
