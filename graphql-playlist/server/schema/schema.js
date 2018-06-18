@@ -14,17 +14,20 @@ const books = [
 	{
 		"id": "1",
 		"name": "Name of the Wind",
-		"genre": "fiction"
+		"genre": "fiction",
+		"authorId": "1"
 	},
 	{
 		"id": "2",
 		"name": "The Final Empire",
-		"genre": "fiction"
+		"genre": "fiction",
+		"authorId": "2"
 	},
 	{
 		"id": "3",
 		"name": "The Long Earth",
-		"genre": "sci-fi"
+		"genre": "sci-fi",
+		"authorId": "3"
 	}
 ];
 
@@ -46,12 +49,33 @@ const authors = [
 	},
 ]
 
+// Now, our aim here is to retrieve a corresponding author of the book when user queries a speicfic book
+// to reiterate, we will send complete author information rather than merely returning an authorId
+// This change will now support a query like,
+//	{
+//		book(id: 3) {
+//			name
+//			genre
+//			id
+//			author {
+//				name
+//			}
+//		}
+//  }
+
 const BookType = new GraphQLObjectType({
 	name: 'Book',
 	fields: () => ({
 		id: {type: GraphQLID},
 		name: {type: GraphQLString},
-		genre: {type: GraphQLString}
+		genre: {type: GraphQLString},
+		author: { 
+			type: AuthorType,
+			resolve(parent, args) {
+				return authors
+						.find(author => author.id === parent.authorId);
+			}
+		}
 	})
 });
 
