@@ -1,4 +1,6 @@
 const graphql = require('graphql');
+const Book = require('../models/book');
+const Author  =require('../models/author');
 
 const { 
 	GraphQLObjectType, 
@@ -8,65 +10,6 @@ const {
 	GraphQLInt,
 	GraphQLList
 } = graphql;
-
-// dummy data, down the line this will be replaced by mongo db
-
-const books = [
-	{
-		"id": "1",
-		"name": "Name of the Wind",
-		"genre": "fiction",
-		"authorId": "1"
-	},
-	{
-		"id": "2",
-		"name": "The Final Empire",
-		"genre": "fiction",
-		"authorId": "2"
-	},
-	{
-		"id": "3",
-		"name": "The Long Earth",
-		"genre": "sci-fi",
-		"authorId": "3"
-	},
-	{
-		"id": "4",
-		"name": "The Hero of Ages",
-		"genre": "Fantasy",
-		"authorId": "2"
-	},
-	{
-		"id": "5",
-		"name": "The Colour of Magic",
-		"genre": "Fantasy",
-		"authorId": "3"
-	},
-	{
-		"id": "6",
-		"name": "The Light Fantastic",
-		"genre": "Fantasy",
-		"authorId": "3"
-	}
-];
-
-const authors = [
-	{
-		"name": "Patrick Rothfuss",
-		"age": 44,
-		"id": "1"
-	},
-	{
-		"name": "Brandon Sanderson",
-		"age": 42,
-		"id": "2"
-	},
-	{
-		"name": "Terry Pratchett",
-		"age": 66,
-		"id": "3"
-	},
-]
 
 // Now, our aim here is to retrieve a corresponding author of the book when user queries a speicfic book
 // to reiterate, we will send complete author information rather than merely returning an authorId
@@ -91,8 +34,11 @@ const BookType = new GraphQLObjectType({
 		author: { 
 			type: AuthorType,
 			resolve(parent, args) {
-				return authors
-						.find(author => author.id === parent.authorId);
+				// Here Author is a mongoose schema to interact with AuthorType
+				// When we use findById() method on mongoos schema for Author
+				// It retrieve an author with give id
+				return Author
+						.findById(parent.authorId);
 			}
 		}
 	})
@@ -124,8 +70,10 @@ const AuthorType = new GraphQLObjectType({
 		books: {
 			type: new GraphQLList(BookType),
 			resolve(parent, args) {
-				return books
-						.filter(book => book.authorId === parent.id);
+				// Here Book is a mongoose schema to interact with BookType
+				// When we use find() method on mongoos schema for Book and we pass the author id parameter
+				// It retrieve all the books by provided author id
+				return Book.find({authorId: parent.id});
 			}
 		}
 	})
@@ -152,20 +100,22 @@ const RootQuery = new GraphQLObjectType({
 			// now you can pass id as string or integer but GraphQLID will adapat and support both the type of args
 			args: { id: { type: GraphQLID } },
 			resolve(parent, args) {
-				// place code here to get data from db/datasource
-
-				// This statement here, iterates through dummy data placed above
-				// and finds a book with given id
-				return books
-						.find(book => book.id === args.id);
+				// Here Book is a mongoose schema to interact with BookType
+				// When we use findById() method on mongoos schema for Book
+				// It retrieve a book with give id
+				return Book
+						.findById(args.id);
 			}
 		},
 		author: {
 			type: AuthorType,
 			args: { id: { type: GraphQLID } },
 			resolve(parent, args) {
-				return authors
-						.find(author => author.id === args.id);
+				// Here Author is a mongoose schema to interact with AuthorType
+				// When we use findById() method on mongoos schema for Author
+				// It retrieve an author with give id
+				return Author
+						.findById(args.id);
 			}
 		},
 		// With the help of this new root query, we should be able to query all the books available within books list
@@ -173,18 +123,65 @@ const RootQuery = new GraphQLObjectType({
 		books: {
 			type: new GraphQLList(BookType),
 			resolve(parent, args) {
-				return books;
+				// When we execute find() method on mongoose schema for Book without parameters
+				// It retrieves all the books from datastore
+				return Book.find({});
 			}
 		},
 		authors: {
 			type: new GraphQLList(AuthorType),
 			resolve(parent, args) {
-				return authors;
+				// When we execute find() method on mongoose schema for Author without parameters
+				// It retrieves all the authors from datastore
+				return Author.find({});
 			}
 		}
 	}
 });
 
+// As RootQueries depict, in how many different way we can query the data
+// Simillarly, Mutation here defines how we can add data to datastore
+const Mutation = new GraphQLObjectType({
+	name: 'Mutation',
+	fields: {
+		// mutation to add a single author
+		addAuthor: {
+			type: AuthorType,
+			args: {
+				name: { type: GraphQLString },
+				age: { type: GraphQLInt }
+			},
+			resolve(parent, args) {
+				let author = new Author({
+					name: args.name,
+					age: args.age
+				});
+
+				return author.save();
+			}
+		},
+		// mutation to add a single book
+		addBook: {
+			type: BookType,
+			args: {
+				name: {type: GraphQLString},
+				genre: {type: GraphQLString},
+				authorId: {type: GraphQLID}
+			},
+			resolve(parent, args) {
+				let book = new Book({
+					name: args.name,
+					genre: args.genre,
+					authorId: args.authorId
+				});
+
+				return book.save();
+			}
+		}
+	}
+})
+
 module.exports = new GraphQLSchema({
-	query: RootQuery
+	query: RootQuery,
+	mutation: Mutation
 });
