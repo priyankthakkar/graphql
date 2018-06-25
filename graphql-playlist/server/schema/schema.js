@@ -122,7 +122,7 @@ const AuthorType = new GraphQLObjectType({
 		name: { type: GraphQLString },
 		age: { type: GraphQLInt },
 		books: {
-			type: GraphQLList(BookType),
+			type: new GraphQLList(BookType),
 			resolve(parent, args) {
 				return books
 						.filter(book => book.authorId === parent.id);
@@ -166,6 +166,20 @@ const RootQuery = new GraphQLObjectType({
 			resolve(parent, args) {
 				return authors
 						.find(author => author.id === args.id);
+			}
+		},
+		// With the help of this new root query, we should be able to query all the books available within books list
+		// also this query will leverage the relation of plain BookType with AuthorType
+		books: {
+			type: new GraphQLList(BookType),
+			resolve(parent, args) {
+				return books;
+			}
+		},
+		authors: {
+			type: new GraphQLList(AuthorType),
+			resolve(parent, args) {
+				return authors;
 			}
 		}
 	}
