@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const cors = require('cors');
 
 // express-graphql helps express to understand graphql
 // our aim is to use graphql as a middleware, which will be
@@ -7,6 +8,7 @@ const mongoose = require('mongoose');
 const graphqlHTTP = require('express-graphql');
 const schema = require('./schema/schema');
 const app = express();
+app.use(cors());
 
 // establishing connection with mongo db
 // I have been using mlab mongodb set up an online db, which is totally free uptp 500 mb.
