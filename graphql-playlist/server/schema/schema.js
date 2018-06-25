@@ -8,7 +8,8 @@ const {
 	GraphQLSchema,
 	GraphQLID,
 	GraphQLInt,
-	GraphQLList
+	GraphQLList,
+	GraphQLNonNull
 } = graphql;
 
 // Now, our aim here is to retrieve a corresponding author of the book when user queries a speicfic book
@@ -141,6 +142,9 @@ const RootQuery = new GraphQLObjectType({
 
 // As RootQueries depict, in how many different way we can query the data
 // Simillarly, Mutation here defines how we can add data to datastore
+
+// For the mutation, we can now see, mandatory fields are now wrapped with GraphQLNonNull
+// Any fields wrapped with this, client must pass them while mutating the data.
 const Mutation = new GraphQLObjectType({
 	name: 'Mutation',
 	fields: {
@@ -148,8 +152,8 @@ const Mutation = new GraphQLObjectType({
 		addAuthor: {
 			type: AuthorType,
 			args: {
-				name: { type: GraphQLString },
-				age: { type: GraphQLInt }
+				name: { type: new GraphQLNonNull(GraphQLString) },
+				age: { type: new GraphQLNonNull(GraphQLInt) }
 			},
 			resolve(parent, args) {
 				let author = new Author({
@@ -164,9 +168,9 @@ const Mutation = new GraphQLObjectType({
 		addBook: {
 			type: BookType,
 			args: {
-				name: {type: GraphQLString},
-				genre: {type: GraphQLString},
-				authorId: {type: GraphQLID}
+				name: {type: new GraphQLNonNull(GraphQLString)},
+				genre: {type: new GraphQLNonNull(GraphQLString)},
+				authorId: {type: new GraphQLNonNull(GraphQLID)}
 			},
 			resolve(parent, args) {
 				let book = new Book({
